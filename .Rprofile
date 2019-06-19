@@ -43,14 +43,19 @@ local({
     package <- pkgs[1]
     pkgs <- pkgs[-1]
     oops <- x$data$table$any
+
     err  <- x$data$table$error
     wrn  <- x$data$table$warn
     nte  <- x$data$table$note
 
+    fe   <- function(i) format(i, width = nchar("errors"))
+    fw   <- function(i) format(i, width = nchar("warnings"))
+    fn   <- function(i) format(i, width = nchar("notes"))
+
     cat( NOYARC
          NOYARC
-        crayon::yellow$bold$underline$blurred("w"),
-        crayon::red$bold$underline$blurred("e"),
+        crayon::yellow$bold$underline$blurred("warnings"),
+        crayon::red$bold$underline$blurred("errors"),
         "\n",
         sep =  NOYARC")
        )
@@ -59,12 +64,21 @@ local({
       w <- wrn[i]
       n <- nte[i]
       p <- pkgs[i]
+
+      # tallying errors
+      ee <- e > 0
+      we <- w > 0
+      ne <- n > 0
+
+      # formatting
+      n <- fn(n)
+      w <- fw(w)
+      e <- fe(e)
       if (oops[i]) {
-        ew <- e > 0 | w > 0
-        e  <- if (e > 0)  NOYARCe
-        w  <- if (w > 0)  NOYARCw
-        n  <- if (n > 0)  NOYARCn
-        p  <- if (ew)     NOYARCcrayon::bold(p)
+        e  <- if (ee > 0)  NOYARCe
+        w  <- if (we > 0)  NOYARCw
+        n  <- if (ne > 0)  NOYARCn
+        p  <- if (ee)  NOYARCcrayon::bold$silver(p)
       } else {
         p <- crayon::silver(p)
         e <- crayon::silver(e)
@@ -73,7 +87,7 @@ local({
       }
       cat(paste(p, n, w, e, "\n"))
     }
-    err.cols <- x$data$table$warn > 0 | x$data$table$error > 0
+    err.cols <- err > 0 || wrn > 0
     if(sum(as.numeric(err.cols), na.rm=TRUE))
       writeLines(c( NOYARCx$data$url))
     writeLines(c( NOYARC"")))
@@ -86,7 +100,8 @@ local({
     if (as.double(cache.age, 'secs') < cache.life) {
       renew.cache <- FALSE
       aged_cache  <- format(round(cache.age))
-      display_check(cache.dat[[2]],
+      res         <- cache.dat[[2]]
+      display_check(res,
                     sprintf("\ncached CRAN status (%s old).", aged_cache) 
                    ) 
     } 
@@ -98,13 +113,15 @@ local({
     saveRDS(list(Sys.time(), res), cache)
     display_check(res)
   }
+  return(invisible(res))
 }
 
 if (interactive()) {
+
+  cat("Default R library:",  NOYARC"\n")
+  
   .check_cran('zkamvar@gmail.com')
 
-  cat("Default R library set to",  NOYARC"\n")
-  
 }
 
 
