@@ -48,7 +48,7 @@ local({
     # https://gist.github.com/brodieG/e60c94d4036f45018530ea504258bcf3
     .check_cran <- function(email      = my_email,
                             cache      = '~/.%s-R-cran-status.RDS',
-                            cache.life = 24 * 3600
+                            cache.life = 24 #* 3600
                            ) {
 
       cache_pat   <- cache
@@ -64,10 +64,12 @@ local({
         err <- x$data$table$error
         wrn <- x$data$table$warn
         nte <- x$data$table$note
+        iss <- x$data$table$issues
 
         fe <- function(i) format(i, width = nchar("errors"))
         fw <- function(i) format(i, width = nchar("warnings"))
         fn <- function(i) format(i, width = nchar("notes"))
+        fi <- function(i) paste("    ", i)
 
         # Display the time of the update
         tim <- as.character(parsedate::parse_iso_8601(x$data$date_updated))
@@ -77,12 +79,14 @@ local({
              NOYARC
             crayon::yellow$bold$underline$blurred("warnings"),
             crayon::red$bold$underline$blurred("errors"),
+            crayon::silver$bold$underline$blurred("issues"),
             "\n",
             sep =  NOYARC")
            )
         # This needs to be a for loop because we can't print the decorated
         # output as a data frame or it will show all the escape values.
         for (i in seq_along(pkgs)) {
+          ii <- iss[i]
           e <- err[i]
           w <- wrn[i]
           n <- nte[i]
@@ -97,18 +101,23 @@ local({
           n <- fn(n)
           w <- fw(w)
           e <- fe(e)
+          if (ii) {
+            ip <- crayon::red(fi("⚠"))
+          } else {
+            ip <- crayon::silver(fi("✔"))
+          }
           if (oops[i]) {
             e <- if (ee > 0)  NOYARCe
             w <- if (we > 0)  NOYARCw
             n <- if (ne > 0)  NOYARCn
-            p <- if (ee)  NOYARCcrayon::bold$silver(p)
+            p <- if (ee || ii)  NOYARCcrayon::bold$silver(p)
           } else {
-            p <- crayon::silver(p)
+            p <- if (ii)  NOYARCcrayon::silver(p)
             e <- crayon::silver(e)
             w <- crayon::silver(w)
             n <- crayon::silver(n)
           }
-          writeLines(paste(p, n, w, e))
+          writeLines(paste(p, n, w, e, ip))
         }
         err.cols <- err > 0 | wrn > 0
         if (sum(as.numeric(err.cols), na.rm=TRUE)) {
@@ -134,7 +143,13 @@ local({
       if (renew.cache) {
         cat("connecting to CRAN...\n")
         res <- cchecks::cch_maintainers(sub("@", "_at_", email))
-        saveRDS(list(Sys.time(), res), cache)
+        pkgs <- res$data$packages$package
+        full <- cchecks::cch_pkgs(pkgs, limit = length(pkgs))
+        names(full) <- pkgs
+        iss <- purrr::map(full, c("data", "check_details", "additional_issues"))
+        iss <- purrr::map_lgl(iss, ~length(.x) > 0)
+        res$data$table$issues <- iss
+        saveRDS(list(time = Sys.time(), summary = res, full = full), cache)
         display_check(res)
       }
       return(invisible(res))
@@ -160,8 +175,13 @@ local({
                    "tibble", 
                    "pkgconfig", 
                    "pillar", 
+                   "purrr",
+                   "magrittr",
                    "rlang", 
                    "R6",
+                   "urltools",
+                   "triebeard",
+                   "Rcpp",
                    NULL)
     for (package in to_unload) {
       unloadNamespace(asNamespace(package))
