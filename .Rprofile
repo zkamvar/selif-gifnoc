@@ -46,6 +46,94 @@ local({
     #
     # For posterity, here's the original function:
     # https://gist.github.com/brodieG/e60c94d4036f45018530ea504258bcf3
+    display_check <- function(x, extra=NULL) {
+      pkgs    <- format(c('package', x$data$table$package))
+      package <- pkgs[1]
+      pkgs    <- pkgs[-1]
+      oops    <- x$data$table$any
+
+      err <- x$data$table$error
+      wrn <- x$data$table$warn
+      nte <- x$data$table$note
+      iss <- x$data$table$issues
+
+      fe <- function(i) format(i, width = nchar("errors"))
+      fw <- function(i) format(i, width = nchar("warnings"))
+      fn <- function(i) format(i, width = nchar("notes"))
+      fi <- function(i) paste("    ", i)
+
+      # Display the time of the update
+      tim <- as.character(parsedate::parse_iso_8601(x$data$date_updated))
+      cat(***
+
+      cat(***
+          ***
+          ***
+          ***
+          ***
+          "\n",
+          sep = ***
+         )
+      # This needs to be a for loop because we can't print the decorated
+      # output as a data frame or it will show all the escape values.
+      for (i in seq_along(pkgs)) {
+        ii <- iss[i]
+        e <- err[i]
+        w <- wrn[i]
+        n <- nte[i]
+        p <- pkgs[i]
+
+        # tallying errors
+        ee <- e > 0
+        we <- w > 0
+        ne <- n > 0
+
+        # formatting
+        n <- fn(n)
+        w <- fw(w)
+        e <- fe(e)
+        if (ii) {
+          ip <- ***
+        } else {
+          ip <- ***
+        }
+        if (oops[i]) {
+          e <- if (ee > 0) ***
+          w <- if (we > 0) ***
+          n <- if (ne > 0) ***
+          p <- if (ee || ii) ***
+        } else {
+          p <- if (ii) ***
+          e <- ***
+          w <- ***
+          n <- ***
+        }
+        writeLines(paste(p, n, w, e, ip))
+      }
+      err.cols <- err > 0 | wrn > 0
+      if (sum(as.numeric(err.cols), na.rm=TRUE)) {
+        writeLines(c(***
+      }
+      writeLines(c(***
+    }
+
+    print.crnchk <- function(x, cache.life = 24 * 3600, ...) {
+      cache.age <- Sys.time() - x[["time"]]
+      cage      <- as.double(cache.age, 'secs')
+
+      if (cage > 1 && cage < cache.life) {
+        extra <- sprintf(
+          "\ncached CRAN status (%s old).", 
+          format(round(cache.age))
+        )
+      } else {
+        extra <- NULL
+      }
+
+      res <- x[["summary"]]
+      display_check(res, extra)
+    }
+
     .check_cran <- function(email      = my_email,
                             cache      = '~/.%s-R-cran-status.RDS',
                             cache.life = 24 * 3600
@@ -55,89 +143,9 @@ local({
       cache       <- sprintf(cache, email)
       renew.cache <- TRUE
 
-      display_check <- function(x, extra=NULL) {
-        pkgs    <- format(c('package', x$data$table$package))
-        package <- pkgs[1]
-        pkgs    <- pkgs[-1]
-        oops    <- x$data$table$any
-
-        err <- x$data$table$error
-        wrn <- x$data$table$warn
-        nte <- x$data$table$note
-        iss <- x$data$table$issues
-
-        fe <- function(i) format(i, width = nchar("errors"))
-        fw <- function(i) format(i, width = nchar("warnings"))
-        fn <- function(i) format(i, width = nchar("notes"))
-        fi <- function(i) paste("    ", i)
-
-        # Display the time of the update
-        tim <- as.character(parsedate::parse_iso_8601(x$data$date_updated))
-        cat(***
-
-        cat(***
-            ***
-            ***
-            ***
-            ***
-            "\n",
-            sep = ***
-           )
-        # This needs to be a for loop because we can't print the decorated
-        # output as a data frame or it will show all the escape values.
-        for (i in seq_along(pkgs)) {
-          ii <- iss[i]
-          e <- err[i]
-          w <- wrn[i]
-          n <- nte[i]
-          p <- pkgs[i]
-
-          # tallying errors
-          ee <- e > 0
-          we <- w > 0
-          ne <- n > 0
-
-          # formatting
-          n <- fn(n)
-          w <- fw(w)
-          e <- fe(e)
-          if (ii) {
-            ip <- ***
-          } else {
-            ip <- ***
-          }
-          if (oops[i]) {
-            e <- if (ee > 0) ***
-            w <- if (we > 0) ***
-            n <- if (ne > 0) ***
-            p <- if (ee || ii) ***
-          } else {
-            p <- if (ii) ***
-            e <- ***
-            w <- ***
-            n <- ***
-          }
-          writeLines(paste(p, n, w, e, ip))
-        }
-        err.cols <- err > 0 | wrn > 0
-        if (sum(as.numeric(err.cols), na.rm=TRUE)) {
-          writeLines(c(***
-        }
-        writeLines(c(***
-      }
-
-
       if (file.exists(cache)) {
+        renew.cache <- FALSE
         cache.dat <- readRDS(cache)
-        cache.age <- Sys.time() - cache.dat[[1]]
-        if (as.double(cache.age, 'secs') < cache.life) {
-          renew.cache <- FALSE
-          aged_cache  <- format(round(cache.age))
-          res         <- cache.dat[[2]]
-          display_check(res,
-                        sprintf("\ncached CRAN status (%s old).", aged_cache) 
-                       ) 
-        } 
       }
 
       if (renew.cache) {
@@ -151,15 +159,17 @@ local({
         res$data$table$issues <- iss
         cache.dat <- list(time = Sys.time(), summary = res, full = full)
         saveRDS(cache.dat, cache)
-        display_check(res)
       }
+      class(cache.dat) <- "crnchk"
       return(invisible(cache.dat))
     }
 
     # Display the header at startup --------------------------------------------
     cat("Default R library:", ***
-    .check_cran(my_email)
+    callr::r(.check_cran, args = list(email = my_email)) -> res
+    print(res)
     assign('.check_cran', .check_cran, env = .GlobalEnv)
+    assign('print.crnchk', print.crnchk, env = .GlobalEnv)
 
     # Unload all the packages that were needed to display the header -----------
     #
@@ -175,11 +185,11 @@ local({
                    "tibble", 
                    "pkgconfig", 
                    "pillar", 
+                   "callr",
+                   "processx",
+                   "ps",
                    "rlang", 
                    "R6",
-                   "urltools",
-                   "triebeard",
-                   "Rcpp",
                    NULL)
     for (package in to_unload) {
       unloadNamespace(asNamespace(package))
