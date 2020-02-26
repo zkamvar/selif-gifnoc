@@ -1,18 +1,20 @@
 local({
   r         <- getOption("repos")
   r["CRAN"] <- "https://cran.rstudio.com/"
-  auth      <- paste('person("Zhian N.", "Kamvar",', 
-                     'email = "zkamvar@gmail.com",', 
-                     'role = c("aut", "cre"),',
-                     'comment = c(ORCID = "0000-0003-1458-7108"))'
-                     )
+  auth      <- paste(
+    'person("Zhian N.", "Kamvar",', 
+    'email = "zkamvar@gmail.com",', 
+    'role = c("aut", "cre"),',
+    'comment = c(ORCID = "0000-0003-1458-7108"))'
+  )
   me       <- eval(parse(text = paste0('utils::', auth)))
   my_name  <- format(me, c('given', 'family'))
   my_email <- format(me, c('email'), braces = list(email = ''))
-  desc     <- list(`Authors@R` = auth,
-                   License     = "MIT + file LICENSE",
-                   Version     = "0.0.0.9000"
-                   )
+  desc     <- list(
+    `Authors@R` = auth,
+    License     = "MIT + file LICENSE",
+    Version     = "0.0.0.9000"
+  )
   # Setting options ------------------------------------------------------------
   options(repos                   = r)
   options(editor                  = "vim")
@@ -66,14 +68,15 @@ local({
       tim <- as.character(parsedate::parse_iso_8601(x$data$date_updated))
       cat(***
 
-      cat(***
-          ***
-          ***
-          ***
-          ***
-          "\n",
-          sep = ***
-         )
+      cat(
+        ***
+        ***
+        ***
+        ***
+        ***
+        "\n",
+        sep = ***
+      )
       # This needs to be a for loop because we can't print the decorated
       # output as a data frame or it will show all the escape values.
       for (i in seq_along(pkgs)) {
@@ -175,23 +178,25 @@ local({
     # Unload all the packages that were needed to display the header -----------
     #
     # This is necessary to provide a clean as possible environment
-    to_unload <- c("crayon", 
-                   "cchecks", 
-                   "parsedate", 
-                   "jsonlite",
-                   "crul", 
-                   "httpcode", 
-                   "curl", 
-                   "rematch2",
-                   "tibble", 
-                   "pkgconfig", 
-                   "pillar", 
-                   "callr",
-                   "processx",
-                   "ps",
-                   "rlang", 
-                   "R6",
-                   NULL)
+    to_unload <- c(
+      "crayon", 
+      "cchecks", 
+      "parsedate", 
+      "jsonlite",
+      "crul", 
+      "httpcode", 
+      "curl", 
+      "rematch2",
+      "tibble", 
+      "pkgconfig", 
+      "pillar", 
+      "callr",
+      "processx",
+      "ps",
+      "rlang", 
+      "R6",
+      NULL
+    )
     for (package in to_unload) {
       unloadNamespace(asNamespace(package))
     }
