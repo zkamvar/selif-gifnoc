@@ -62,6 +62,7 @@ export -f black_cat
 # https://stackoverflow.com/a/56678483/2752888
 function luminance () {
   local hex="${1/\#/}" # remove leading hash
+  local hex="${1/
   local r=$( sRGBtoLIN ${hex:0:2} )
   local g=$( sRGBtoLIN ${hex:2:2} )
   local b=$( sRGBtoLIN ${hex:4:2} )

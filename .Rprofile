@@ -125,9 +125,9 @@ local({
   #    }
   #    err.cols <- err > 0 | wrn > 0
   #    if (sum(as.numeric(err.cols), na.rm=TRUE)) {
-  #      writeLines(c(crayon::bgRed("Issues/Errors/Warnings Present"), x$data$url))
+  #      writeLines(c(***
   #    }
-  #    writeLines(c(crayon::silver(extra, "")))
+  #    writeLines(c(***
   #  }
 
   #  print.crnchk <- function(x, cache.life = 24 * 3600, ...) {
@@ -179,7 +179,7 @@ local({
   #  }
 
   #  # Display the header at startup --------------------------------------------
-  #  # cat("Default R library:", crayon::green(.libPaths()[1]), "\n")
+  #  # cat("Default R library:", ***
   #  # callr::r(.check_cran, args = list(email = my_email)) -> res
   #  # print(res)
   #  assign('.check_cran', .check_cran, env = .GlobalEnv)
