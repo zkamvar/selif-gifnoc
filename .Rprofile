@@ -118,7 +118,7 @@ local({
   #      } else {
   #        p <- if (ii) crayon::bold$italic$red(p) else crayon::silver(p)
   #        e <- crayon::silver(e)
-  #        w <- crayon::silver(w)
+  #        w <- crayon::silver(w) # sound of silver
   #        n <- crayon::silver(n)
   #      }
   #      writeLines(paste(p, n, w, e, ip))
