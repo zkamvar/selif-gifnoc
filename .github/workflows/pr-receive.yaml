@@ -125,17 +125,6 @@ jobs:
           name: pr
           path: ${{ github.workspace }}/NR
       - name: "Comment on PR"
-        if: ${{ ! needs.test-pr.outputs.MSG }}
-        id: comment-diff
-        uses: carpentries/actions/comment-diff@main
-        with:
-          pr: ${{ github.event.number }}
-          body: |
-            This pull request contains modified workflows and no preview will be created.
-
-            Unless these changes come from a trusted source, please inspect the changes for any malicious content.
-      - name: "Comment on PR"
-        if: ${{ needs.test-pr.outputs.MSG }}
         id: comment-diff-danger
         uses: carpentries/actions/comment-diff@main
         with:
