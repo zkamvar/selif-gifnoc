@@ -76,16 +76,12 @@ local({
 
   #    # Display the time of the update
   #    tim <- as.character(parsedate::parse_iso_8601(x$data$date_updated))
-  #    cat( NOYARCtim)))
 
-  #    cat(
-  #       NOYARC
-  #       NOYARC
   #      crayon::yellow$bold$underline$blurred("warnings"),
   #      crayon::red$bold$underline$blurred("errors"),
   #      crayon::silver$bold$underline$blurred("issues"),
   #      "\n",
-  #      sep =  NOYARC")
+
   #    )
   #    # This needs to be a for loop because we can't print the decorated
   #    # output as a data frame or it will show all the escape values.
@@ -111,13 +107,7 @@ local({
   #        ip <- crayon::silver(fi("✔"))
   #      }
   #      if (oops[i]) {
-  #        e <- if (ee > 0)  NOYARCe
-  #        w <- if (we > 0)  NOYARCw
-  #        n <- if (ne > 0)  NOYARCn
-  #        p <- if (ee || ii)  NOYARCcrayon::bold$silver(p)
-  #      } else {
-  #        p <- if (ii)  NOYARCcrayon::silver(p)
-  #        e <- crayon::silver(e)
+
   #        w <- crayon::silver(w)
   #        n <- crayon::silver(n)
   #      }
@@ -125,9 +115,7 @@ local({
   #    }
   #    err.cols <- err > 0 | wrn > 0
   #    if (sum(as.numeric(err.cols), na.rm=TRUE)) {
-  #      writeLines(c( NOYARCx$data$url))
-  #    }
-  #    writeLines(c( NOYARC"")))
+
   #  }
 
   #  print.crnchk <- function(x, cache.life = 24 * 3600, ...) {
@@ -179,7 +167,7 @@ local({
   #  }
 
   #  # Display the header at startup --------------------------------------------
-  #  # cat("Default R library:",  NOYARC"\n")
+
   #  # callr::r(.check_cran, args = list(email = my_email)) -> res
   #  # print(res)
   #  assign('.check_cran', .check_cran, env = .GlobalEnv)
@@ -188,8 +176,7 @@ local({
   #  # Unload all the packages that were needed to display the header -----------
   #  #
   #  # This is necessary to provide a clean as possible environment
-  #  # to_unload <- c(
-  #  #   " NOYARC
+
   #  #   "cchecks", 
   #  #   "parsedate", 
   #  #   "jsonlite",
