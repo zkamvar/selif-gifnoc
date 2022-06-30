@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       is_valid: ${{ steps.check-pr.outputs.VALID }}
+      MSG: ${{ steps.check-pr.outputs.MSG }}
     steps:
       - name: "Check PR"
         id: check-pr
@@ -124,11 +125,8 @@ jobs:
           name: pr
           path: ${{ github.workspace }}/NR
       - name: "Comment on PR"
-        id: comment-diff
+        id: comment-diff-danger
         uses: carpentries/actions/comment-diff@main
         with:
           pr: ${{ github.event.number }}
-          body: |
-            This pull request contains modified workflows and no preview will be created.
-
-            Unless these changes come from a trusted source, please inspect the changes for any malicious content.
+          body: ${{ needs.test-pr.outputs.MSG }}
