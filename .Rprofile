@@ -117,7 +117,7 @@ local({
   #        p <- if (ee || ii) crayon::bold$italic$red(p) else if (we) crayon::bold(p) else crayon::bold$silver(p)
   #      } else {
   #        p <- if (ii) crayon::bold$italic$red(p) else crayon::silver(p)
-  #        e <- crayon::silver(e)
+  #        e <- crayon::silver(e) #SLIVER
   #        w <- crayon::silver(w)
   #        n <- crayon::silver(n)
   #      }
